@@ -9,7 +9,18 @@ class SeatManager extends ChangeNotifier {
   bool adminMode = false;
   final List<Seat> _brokenSeats = [];
   final Random _random = Random();
-  int? groupSize;
+  int groupSize = 1;
+
+  void incrementGroupSize() {
+    groupSize++;
+    notifyListeners();
+  }
+
+  void decrementGroupSize() {
+    groupSize--;
+    notifyListeners();
+  }
+
   void initializeAuditorium({required int rows, required int seatsPerRow}) {
     seatingPlan = List.generate(rows, (row) {
       return List.generate(seatsPerRow, (seatNum) {
@@ -28,7 +39,6 @@ class SeatManager extends ChangeNotifier {
   }
 
   void _markSpecialSeats() {
-    // VIP - Front center (rows 1-3, center seats)
     for (int row = 0; row < 3; row++) {
       final center = seatingPlan[row].length ~/ 2;
       for (int i = center - 1; i <= center + 1; i++) {
@@ -36,7 +46,6 @@ class SeatManager extends ChangeNotifier {
       }
     }
 
-    // Accessible - Aisles every 4th row
     for (int row = 0; row < seatingPlan.length; row += 4) {
       seatingPlan[row][0].type = SeatType.accessible;
       seatingPlan[row].last.type = SeatType.accessible;
@@ -53,7 +62,6 @@ class SeatManager extends ChangeNotifier {
   }
 
   void _markAgeRestrictedZones() {
-    // Last 2 rows are age-restricted
     for (int row = seatingPlan.length - 2; row < seatingPlan.length; row++) {
       for (var seat in seatingPlan[row]) {
         seat.type = SeatType.ageRestricted;
@@ -67,10 +75,10 @@ class SeatManager extends ChangeNotifier {
   }
 
   void processCancellation(List<Seat> seats) {
-    seats.forEach((seat) {
+    for (var seat in seats) {
       seat.isOccupied = false;
       seat.isReserved = false;
-    });
+    }
     notifyListeners();
   }
 }

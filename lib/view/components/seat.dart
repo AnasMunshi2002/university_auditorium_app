@@ -47,10 +47,13 @@ class SeatWidget extends StatelessWidget {
   Color _getSeatColor() {
     if (seat.isOccupied) return Colors.black;
     return switch (seat.type) {
-      SeatType.vip => Colors.red[400]!,
-      SeatType.accessible => Colors.green[400]!,
-      SeatType.broken => Colors.grey[800]!,
-      SeatType.ageRestricted => Colors.orange[300]!,
+      SeatType.vip => seat.isReserved ? Colors.blue[200]! : Colors.red[400]!,
+      SeatType.accessible =>
+        seat.isReserved ? Colors.blue[200]! : Colors.green[400]!,
+      SeatType.broken =>
+        seat.isReserved ? Colors.blue[200]! : Colors.grey[800]!,
+      SeatType.ageRestricted =>
+        seat.isReserved ? Colors.blue[200]! : Colors.orange[300]!,
       _ => seat.isReserved ? Colors.blue[200]! : Colors.grey[200]!,
     };
   }

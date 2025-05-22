@@ -8,16 +8,22 @@ import '../model/seat_model.dart';
 import 'components/seat.dart';
 
 class SeatArrangement extends StatelessWidget {
-  const SeatArrangement({super.key});
+  final bool isVIP;
+  final bool isAccessible;
+  final bool isAgeRestricted;
+  const SeatArrangement(
+      {super.key,
+      required this.isAccessible,
+      required this.isAgeRestricted,
+      required this.isVIP});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('University Auditorium'),
+        title: const Text('Seat plan'),
         actions: [
           _buildAdminToggle(context),
-          //_buildInitializeButton(context),
         ],
       ),
       body: Column(
@@ -112,7 +118,42 @@ class SeatArrangement extends StatelessWidget {
                       return SeatWidget(
                         seat: seat,
                         isAdminMode: seatManager.adminMode,
-                        onTap: () => _handleSeatTap(context, seat),
+                        onTap: () {
+                          if (seat.type == SeatType.vip && !isVIP) {
+                            SnackBar snackBar = const SnackBar(
+                                content: Text("You cannot select VIP seats"));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          }
+                          if (seat.type == SeatType.accessible &&
+                              !isAccessible) {
+                            SnackBar snackBar = const SnackBar(
+                                content:
+                                    Text("You cannot select wheelchair seats"));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          }
+                          if (seat.type == SeatType.ageRestricted &&
+                              isAgeRestricted) {
+                            SnackBar snackBar = const SnackBar(
+                                content: Text("You cannot select Last 2 rows"));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          }
+                          if (seat.type == SeatType.broken) {
+                            SnackBar snackBar = const SnackBar(
+                                content: Text("This seat is broken!!"));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          } else if ((seat.type == SeatType.vip && isVIP) ||
+                              (seat.type == SeatType.accessible &&
+                                  isAccessible) ||
+                              (seat.type == SeatType.ageRestricted &&
+                                  !isAgeRestricted) ||
+                              seat.type == SeatType.regular) {
+                            _handleSeatTap(context, seat);
+                          }
+                        },
                       );
                     }).toList(),
                   );
@@ -129,11 +170,9 @@ class SeatArrangement extends StatelessWidget {
     final seatManager = context.read<SeatManager>();
 
     if (seatManager.adminMode) {
-      // Admin can toggle any seat
       seat.isOccupied = !seat.isOccupied;
       seatManager.notifyListeners();
     } else if (!seat.isOccupied && seat.type != SeatType.broken) {
-      // Regular user selection
       seat.isReserved = !seat.isReserved;
       seatManager.notifyListeners();
     }

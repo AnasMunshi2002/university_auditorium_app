@@ -20,9 +20,7 @@ class SeatingAlgorithm {
 
   List<Seat> _assignGroup(Attendee group) {
     var bestBlock = _findContiguousBlock(group.groupSize);
-
     if (bestBlock.isNotEmpty) return bestBlock;
-
     if (group.groupSize > 2) {
       final halfSize = (group.groupSize / 2).ceil();
       final firstHalf =
@@ -34,7 +32,6 @@ class SeatingAlgorithm {
         return [...firstHalf, ...secondHalf];
       }
     }
-
     return _findAnySeats(group.groupSize);
   }
 
@@ -115,7 +112,6 @@ class SeatingAlgorithm {
         .where((seat) => !seat.isOccupied && seat.type != SeatType.broken)
         .take(count)
         .toList();
-
     return available.length == count ? available : [];
   }
 }
